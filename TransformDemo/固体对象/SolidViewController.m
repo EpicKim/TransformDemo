@@ -29,7 +29,7 @@
     self.view.backgroundColor = [UIColor whiteColor];
     
     self.title = @"固体对象";
-    count = 0;
+    count = 1;
     //创建主Layer
     _rootView = [[UIView alloc] init];
     CATransform3D perspective = CATransform3DIdentity;
@@ -37,27 +37,34 @@
     perspective = CATransform3DRotate(perspective, -M_PI_4, 1, 0, 0);
     perspective = CATransform3DRotate(perspective, -M_PI_4, 0, 1, 0);
     _rootView.layer.sublayerTransform = perspective;
-//    _rootView = [[UIView alloc] init];
-//    _rootView.layer.contentsScale = [UIScreen mainScreen].scale;
-//    _rootView.frame = self.view.bounds;
     [self.view addSubview:_rootView];
-    int angle = 100;
-//    _rootView.layer.sublayerTransform = CATransform3DIdentity;
+
     CATransform3D trans = CATransform3DMakeRotation(-M_PI_4, 1, 0, 0);
     _rootView.layer.sublayerTransform = CATransform3DRotate(trans, -M_PI_4, 0, 1, 0);
     //前
-    [self addFaceWithParams:@[@0, @0, [NSNumber numberWithInt:angle], @0, @0, @0, @0]];
-    //后
-    [self addFaceWithParams:@[@0, @0, [NSNumber numberWithInt:-angle], @(M_PI), @0, @0, @0]];
-    //左
-    [self addFaceWithParams:@[[NSNumber numberWithInt:-angle], @0, @0, @(-M_PI_2), @0, @1, @0]];
-    //右
-    [self addFaceWithParams:@[[NSNumber numberWithInt:angle], @0, @0, @(M_PI_2), @0, @1, @0]];
-    //上
-    [self addFaceWithParams:@[@0, [NSNumber numberWithInt:-angle], @0, @(-M_PI_2), @1, @0, @0]];
-    //下
-    [self addFaceWithParams:@[@0, [NSNumber numberWithInt:angle], @0, @(M_PI_2), @1, @0, @0]];
-
+   CATransform3D transform = CATransform3DMakeTranslation(0, 0, 100);
+    [self addFace:transform].backgroundColor = [UIColor redColor];
+    // 2
+    transform = CATransform3DMakeTranslation(100, 0, 0);
+    transform = CATransform3DRotate(transform, M_PI_2, 0, 1, 0);
+    [self addFace:transform].backgroundColor = [UIColor orangeColor];
+    // 3
+    transform = CATransform3DMakeTranslation(0, -100, 0);
+    transform = CATransform3DRotate(transform, M_PI_2, 1, 0, 0);
+    [self addFace:transform].backgroundColor = [UIColor yellowColor];
+    // 4
+    transform = CATransform3DMakeTranslation(0, 100, 0);
+    transform = CATransform3DRotate(transform, -M_PI_2, 1, 0, 0);
+    [self addFace:transform].backgroundColor = [UIColor greenColor];
+    // 5
+    transform = CATransform3DMakeTranslation(-100, 0, 0);
+    transform = CATransform3DRotate(transform, -M_PI_2, 0, 1, 0);
+    [self addFace:transform].backgroundColor = [UIColor blueColor];
+    // 6
+    transform = CATransform3DMakeTranslation(0, 0, -100);
+    transform = CATransform3DRotate(transform, M_PI, 0, 1, 0);
+    [self addFace:transform].backgroundColor = [UIColor purpleColor];
+    
     [self.view addSubview:_rootView];
 }
 
@@ -66,7 +73,7 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)addFaceWithParams:(NSArray*)params
+- (UIView *)addFace:(CATransform3D)transform
 {
     UIView *view = [[UIView alloc] init];
     //设置位置，和颜色等参数
@@ -74,66 +81,22 @@
     view.backgroundColor = [UIColor whiteColor];
     view.frame = CGRectMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds), 200, 200);
     
-    CATransform3D transform = CATransform3DMakeTranslation(0, 0, 100);
-    if(count == 0) {
-
-    }
-    else if (count == 1) {
-        transform = CATransform3DMakeTranslation(100, 0, 0);
-        transform = CATransform3DRotate(transform, M_PI_2, 0, 1, 0);
-    }
-    else if (count == 2) {
-        transform = CATransform3DMakeTranslation(0, -100, 0);
-        transform = CATransform3DRotate(transform, M_PI_2, 1, 0, 0);
-    }
-    else if (count == 3) {
-        transform = CATransform3DMakeTranslation(0, 100, 0);
-        transform = CATransform3DRotate(transform, -M_PI_2, 1, 0, 0);
-    }
-    else if (count == 4) {
-        transform = CATransform3DMakeTranslation(-100, 0, 0);
-        transform = CATransform3DRotate(transform, -M_PI_2, 0, 1, 0);
-    }
-    else if (count == 5) {
-        transform = CATransform3DMakeTranslation(0, 0, -100);
-        transform = CATransform3DRotate(transform, M_PI, 0, 1, 0);
-    }
     view.layer.transform = transform;
     
     //设置transform属性并把Layer加入到主Layer中
     view.layer.transform = transform;
     UILabel *label = [[UILabel alloc] init];
+    label.font = [UIFont systemFontOfSize:30];
     label.text = [NSString stringWithFormat:@"%d", count];
     [view addSubview:label];
     
     [self applyLightingToFace:view.layer];
-    label.frame = CGRectMake(40, 40, 20, 20);
-    if (count == 0) {
-        view.backgroundColor = [UIColor redColor];
-    }
-    else if (count == 1) {
-        view.backgroundColor = [UIColor orangeColor];
-    }
-    else if (count == 2) {
-        view.backgroundColor = [UIColor yellowColor];
-    }
-    else if (count == 3) {
-        view.backgroundColor = [UIColor greenColor];
-    }
-    else if (count == 4) {
-        view.backgroundColor = [UIColor orangeColor];
-    }
-    else if (count == 5) {
-        view.backgroundColor = [UIColor blueColor];
-    }
-    else if (count == 6) {
-        view.backgroundColor = [UIColor purpleColor];
-    }
-    count ++;
-//    [_rootLayer addSublayer:gradient];
-    [_rootView addSubview:view];
-}
+    label.frame = CGRectMake(80, 80, 20, 20);
 
+    count ++;
+    [_rootView addSubview:view];
+    return view;
+}
 
 - (void)applyLightingToFace:(CALayer *)face
 {
