@@ -32,8 +32,14 @@
     count = 0;
     //创建主Layer
     _rootView = [[UIView alloc] init];
-    _rootView.layer.contentsScale = [UIScreen mainScreen].scale;
-    _rootView.frame = self.view.bounds;
+    CATransform3D perspective = CATransform3DIdentity;
+    perspective.m34 = -1.0 / 500.0;
+    perspective = CATransform3DRotate(perspective, -M_PI_4, 1, 0, 0);
+    perspective = CATransform3DRotate(perspective, -M_PI_4, 0, 1, 0);
+    _rootView.layer.sublayerTransform = perspective;
+//    _rootView = [[UIView alloc] init];
+//    _rootView.layer.contentsScale = [UIScreen mainScreen].scale;
+//    _rootView.frame = self.view.bounds;
     [self.view addSubview:_rootView];
     int angle = 100;
 //    _rootView.layer.sublayerTransform = CATransform3DIdentity;
@@ -64,13 +70,36 @@
 {
     UIView *view = [[UIView alloc] init];
     //设置位置，和颜色等参数
-    view.bounds = CGRectMake(0, 0, 100, 100);
+    view.bounds = CGRectMake(0, 0, 200, 200);
     view.backgroundColor = [UIColor whiteColor];
-    view.frame = CGRectMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds), 100, 100);
+    view.frame = CGRectMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds), 200, 200);
+    
+    CATransform3D transform = CATransform3DMakeTranslation(0, 0, 100);
+    if(count == 0) {
 
-    //根据参数对CALayer进行偏移和旋转Transform
-    CATransform3D transform = CATransform3DMakeTranslation([[params objectAtIndex:0] floatValue], [[params objectAtIndex:1] floatValue], [[params objectAtIndex:2] floatValue]);
-    transform = CATransform3DRotate(transform, [[params objectAtIndex:3] floatValue], [[params objectAtIndex:4] floatValue], [[params objectAtIndex:5] floatValue], [[params objectAtIndex:6] floatValue]);
+    }
+    else if (count == 1) {
+        transform = CATransform3DMakeTranslation(100, 0, 0);
+        transform = CATransform3DRotate(transform, M_PI_2, 0, 1, 0);
+    }
+    else if (count == 2) {
+        transform = CATransform3DMakeTranslation(0, -100, 0);
+        transform = CATransform3DRotate(transform, M_PI_2, 1, 0, 0);
+    }
+    else if (count == 3) {
+        transform = CATransform3DMakeTranslation(0, 100, 0);
+        transform = CATransform3DRotate(transform, -M_PI_2, 1, 0, 0);
+    }
+    else if (count == 4) {
+        transform = CATransform3DMakeTranslation(-100, 0, 0);
+        transform = CATransform3DRotate(transform, -M_PI_2, 0, 1, 0);
+    }
+    else if (count == 5) {
+        transform = CATransform3DMakeTranslation(0, 0, -100);
+        transform = CATransform3DRotate(transform, M_PI, 0, 1, 0);
+    }
+    view.layer.transform = transform;
+    
     //设置transform属性并把Layer加入到主Layer中
     view.layer.transform = transform;
     UILabel *label = [[UILabel alloc] init];
