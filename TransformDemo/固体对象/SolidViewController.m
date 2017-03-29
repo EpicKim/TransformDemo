@@ -7,10 +7,16 @@
 //
 
 #import "SolidViewController.h"
+#import <QuartzCore/QuartzCore.h>
+#import <GLKit/GLKit.h>
+
+#define LIGHT_DIRECTION 0, 1, -0.5
+#define AMBIENT_LIGHT 0.5
+
 
 @interface SolidViewController ()
 {
-    CALayer *_rootLayer;
+    UIView *_rootView;
     int count;
 }
 @end
@@ -25,37 +31,28 @@
     self.title = @"固体对象";
     count = 0;
     //创建主Layer
-    _rootLayer = [CALayer layer];
-    _rootLayer.contentsScale = [UIScreen mainScreen].scale;
-    _rootLayer.frame = self.view.bounds;
-    
-    int angle = 45;
-    //前
-    [self addLayer:@[@0, @0, [NSNumber numberWithInt:angle], @0, @0, @0, @0]];
-    //后
-    [self addLayer:@[@0, @0, [NSNumber numberWithInt:-angle], @(M_PI), @0, @0, @0]];
-    //左
-    [self addLayer:@[[NSNumber numberWithInt:-angle], @0, @0, @(-M_PI_2), @0, @1, @0]];
-    //右
-    [self addLayer:@[[NSNumber numberWithInt:angle], @0, @0, @(M_PI_2), @0, @1, @0]];
-    //上
-    [self addLayer:@[@0, [NSNumber numberWithInt:-angle], @0, @(-M_PI_2), @1, @0, @0]];
-    //下
-    [self addLayer:@[@0, [NSNumber numberWithInt:angle], @0, @(M_PI_2), @1, @0, @0]];
-    
-    //主Layer的3D变换
-    CATransform3D transform = CATransform3DIdentity;
-    transform.m34 = -1.0 / 700;
-    //在X轴上做一个20度的小旋转
-    transform = CATransform3DRotate(transform, M_PI / 9, 1, 0, 0);
-    //设置CALayer的sublayerTransform
-    _rootLayer.sublayerTransform = transform;
-    //添加Layer
-    [self.view.layer addSublayer:_rootLayer];
-    
-    _rootLayer.sublayerTransform = CATransform3DIdentity;
+    _rootView = [[UIView alloc] init];
+    _rootView.layer.contentsScale = [UIScreen mainScreen].scale;
+    _rootView.frame = self.view.bounds;
+    [self.view addSubview:_rootView];
+    int angle = 100;
+//    _rootView.layer.sublayerTransform = CATransform3DIdentity;
     CATransform3D trans = CATransform3DMakeRotation(-M_PI_4, 1, 0, 0);
-    _rootLayer.sublayerTransform = CATransform3DRotate(trans, -M_PI_4, 0, 1, 0);
+    _rootView.layer.sublayerTransform = CATransform3DRotate(trans, -M_PI_4, 0, 1, 0);
+    //前
+    [self addFaceWithParams:@[@0, @0, [NSNumber numberWithInt:angle], @0, @0, @0, @0]];
+    //后
+    [self addFaceWithParams:@[@0, @0, [NSNumber numberWithInt:-angle], @(M_PI), @0, @0, @0]];
+    //左
+    [self addFaceWithParams:@[[NSNumber numberWithInt:-angle], @0, @0, @(-M_PI_2), @0, @1, @0]];
+    //右
+    [self addFaceWithParams:@[[NSNumber numberWithInt:angle], @0, @0, @(M_PI_2), @0, @1, @0]];
+    //上
+    [self addFaceWithParams:@[@0, [NSNumber numberWithInt:-angle], @0, @(-M_PI_2), @1, @0, @0]];
+    //下
+    [self addFaceWithParams:@[@0, [NSNumber numberWithInt:angle], @0, @(M_PI_2), @1, @0, @0]];
+
+    [self.view addSubview:_rootView];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -63,48 +60,75 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)addLayer:(NSArray*)params
+- (void)addFaceWithParams:(NSArray*)params
 {
-    //创建支持渐变背景的CAGradientLayer
-    CAGradientLayer *gradient = [CAGradientLayer layer];
+    UIView *view = [[UIView alloc] init];
     //设置位置，和颜色等参数
-    gradient.contentsScale = [UIScreen mainScreen].scale;
-    gradient.bounds = CGRectMake(0, 0, 100, 100);
-    gradient.position = CGPointMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds));
-//    gradient.colors = @[(id)[UIColor grayColor].CGColor, (id)[UIColor blackColor].CGColor];
-    gradient.backgroundColor = [UIColor yellowColor].CGColor;
-    gradient.locations = @[@0, @1];
-    gradient.startPoint = CGPointMake(0, 0);
-    gradient.endPoint = CGPointMake(0, 1);
-    
+    view.bounds = CGRectMake(0, 0, 100, 100);
+    view.backgroundColor = [UIColor whiteColor];
+    view.frame = CGRectMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds), 100, 100);
+
     //根据参数对CALayer进行偏移和旋转Transform
     CATransform3D transform = CATransform3DMakeTranslation([[params objectAtIndex:0] floatValue], [[params objectAtIndex:1] floatValue], [[params objectAtIndex:2] floatValue]);
     transform = CATransform3DRotate(transform, [[params objectAtIndex:3] floatValue], [[params objectAtIndex:4] floatValue], [[params objectAtIndex:5] floatValue], [[params objectAtIndex:6] floatValue]);
     //设置transform属性并把Layer加入到主Layer中
-    gradient.transform = transform;
+    view.layer.transform = transform;
+    UILabel *label = [[UILabel alloc] init];
+    label.text = [NSString stringWithFormat:@"%d", count];
+    [view addSubview:label];
+    
+    [self applyLightingToFace:view.layer];
+    label.frame = CGRectMake(40, 40, 20, 20);
     if (count == 0) {
-        gradient.backgroundColor = [UIColor redColor].CGColor;
+        view.backgroundColor = [UIColor redColor];
     }
     else if (count == 1) {
-        gradient.backgroundColor = [UIColor orangeColor].CGColor;
+        view.backgroundColor = [UIColor orangeColor];
     }
     else if (count == 2) {
-        gradient.backgroundColor = [UIColor yellowColor].CGColor;
+        view.backgroundColor = [UIColor yellowColor];
     }
     else if (count == 3) {
-        gradient.backgroundColor = [UIColor greenColor].CGColor;
+        view.backgroundColor = [UIColor greenColor];
     }
     else if (count == 4) {
-        gradient.backgroundColor = [UIColor orangeColor].CGColor;
+        view.backgroundColor = [UIColor orangeColor];
     }
     else if (count == 5) {
-        gradient.backgroundColor = [UIColor blueColor].CGColor;
+        view.backgroundColor = [UIColor blueColor];
     }
     else if (count == 6) {
-        gradient.backgroundColor = [UIColor purpleColor].CGColor;
+        view.backgroundColor = [UIColor purpleColor];
     }
     count ++;
-    [_rootLayer addSublayer:gradient];
+//    [_rootLayer addSublayer:gradient];
+    [_rootView addSubview:view];
+}
+
+
+- (void)applyLightingToFace:(CALayer *)face
+{
+    //add lighting layer
+    CALayer *layer = [CALayer layer];
+    layer.frame = face.bounds;
+    [face addSublayer:layer];
+    //convert the face transform to matrix
+    //(GLKMatrix4 has the same structure as CATransform3D)
+    //译者注：GLKMatrix4和CATransform3D内存结构一致，但坐标类型有长度区别，所以理论上应该做一次float到CGFloat的转换，感谢[@zihuyishi](https://github.com/zihuyishi)同学~
+    CATransform3D transform = face.transform;
+    GLKMatrix4 matrix4 = *(GLKMatrix4 *)&transform;
+    GLKMatrix3 matrix3 = GLKMatrix4GetMatrix3(matrix4);
+    //get face normal
+    GLKVector3 normal = GLKVector3Make(0, 0, 1);
+    normal = GLKMatrix3MultiplyVector3(matrix3, normal);
+    normal = GLKVector3Normalize(normal);
+    //get dot product with light direction
+    GLKVector3 light = GLKVector3Normalize(GLKVector3Make(LIGHT_DIRECTION));
+    float dotProduct = GLKVector3DotProduct(light, normal);
+    //set lighting layer opacity
+    CGFloat shadow = 1 + dotProduct - AMBIENT_LIGHT;
+    UIColor *color = [UIColor colorWithWhite:0 alpha:shadow];
+    layer.backgroundColor = color.CGColor;
 }
 /*
 #pragma mark - Navigation
