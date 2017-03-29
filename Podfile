@@ -1,11 +1,11 @@
 source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, "8.0"
 
-def reader_pods
+def my_pods
     pod 'Masonry'
 end
 
 target ’TransformDemo’ do
-    reader_pods
+    my_pods
 end
 
