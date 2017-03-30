@@ -38,11 +38,11 @@
      Y = Rsin(a+b) = Rsinacosb + Rcosasinb = xsina + ycosa ;
      
      用矩阵表示：
-     cosa   sina  0
-     [X, Y, 1] = [x, y, 1][-sina  cosa  0  ]
+     cosA   sinA  0
+     [X, Y, 1] = [x, y, 1][-sinA  cosA  0  ]
      |0        0     1|
-     |cosa   sina    0|
-     |-sina  cosa    0|  为旋转变换矩阵。
+     |cosA   sina    0|
+     |-sinA  cosA    0|  为旋转变换矩阵。
      |0       0      1|
      */
     UIImage *image = [UIImage imageNamed:@"1"];
@@ -54,13 +54,13 @@
     /*
      缩放
      设某点坐标，在x轴方向扩大 sx倍，y轴方向扩大 sy倍，[x,y]为变换前坐标， [X,Y]为变换后坐标。
-     X = sx*x; Y = sy*y;
+     X = Sx*x; Y = Sy*y;
      则用矩阵表示：
      sx    0    0
      [X, Y, 1] = [x, y, 1][ 0    sy    0  ] ;
      |0     0     1|
-     |sx    0     0|
-     |0    sy     0|  即为缩放矩阵。
+     |Sx    0     0|
+     |0    Sy     0|  即为缩放矩阵。
      |0     0     1|
      */
     UIImageView *imageView2 = [[UIImageView alloc] initWithImage:image];
@@ -92,14 +92,21 @@
     
     // 混合变换 缩放+旋转
     UIImageView *imageView4 = [[UIImageView alloc] initWithImage:image];
-    CGAffineTransform transform = CGAffineTransformMakeRotation(45);
+    CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_2);
     imageView4.transform = CGAffineTransformScale(transform, 1, 0.5);
     [self.view addSubview:imageView4];
+    // 混合变换 缩放+旋转 (对照组)
+    UIImageView *imageView6 = [[UIImageView alloc] initWithImage:image];
+    CGAffineTransform tmp = CGAffineTransformIdentity;
+    tmp = CGAffineTransformScale(transform, 1, 0.5);
+    tmp = CGAffineTransformRotate(transform, M_PI_2);
+    imageView6.transform = tmp;
+    [self.view addSubview:imageView6];
     
     // 混合变换 平移+旋转+缩放
     UIImageView *imageView5 = [[UIImageView alloc] initWithImage:image];
     CGAffineTransform mix = CGAffineTransformIdentity;
-    mix = CGAffineTransformScale(transform, 0.5, 0.5);
+    mix = CGAffineTransformScale(transform, 1, 0.5);
     mix = CGAffineTransformRotate(transform, M_PI_2);
     mix = CGAffineTransformTranslate(transform, 130, 0);
     imageView5.transform = mix;
@@ -130,13 +137,16 @@
         make.left.equalTo(imageView1.mas_left);
         make.top.equalTo(imageView3.mas_bottom).offset(20);
     }];
+    
+    [imageView6 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(imageView4.mas_left);
+        make.top.equalTo(imageView4.mas_bottom).offset(20);
+    }];
 }
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
 
 @end
