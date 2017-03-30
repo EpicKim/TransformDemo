@@ -9,7 +9,7 @@
 #import "ThreeDTransformViewController.h"
 #import "Masonry.h"
 
-#define WS(weakSelf)                    __weak __typeof(&*self)weakSelf = self;
+#define WS(weakSelf) __weak __typeof(&*self)weakSelf = self;
 
 @interface ThreeDTransformViewController ()
 
@@ -25,10 +25,11 @@
 
     self.title = @"3D变换";
     CGFloat angle = 60 * M_PI / 180;
-    // *******Y轴旋转*******
+    
     UIImage *image = [UIImage imageNamed:@"1"];
+    // *******X轴旋转  60°******
     UIImageView *imageView1 = [[UIImageView alloc] initWithImage:image.copy];
-    imageView1.layer.transform = CATransform3DMakeRotation(M_PI_4, 0, 1, 0);
+    imageView1.layer.transform = CATransform3DMakeRotation(angle, 1, 0, 0);
     [self.view addSubview:imageView1];
     
     // *****X、Y轴旋转*****
@@ -62,6 +63,39 @@
     UIImageView *imageView4 = [[UIImageView alloc] initWithImage:image.copy];
     [contentView addSubview:imageView4];
     
+    /*
+     绕坐标轴旋转的公式：
+     
+     （1）绕Z轴旋转
+     |cosA   sinA   0    0|
+     |-sinA  coasA  0    0|
+     |0       0     1    0|
+     |0       0     0    1|
+     
+     （2）绕X轴旋转
+     
+     |1   0     0      0|
+     |0  cosA  sinA    0|
+     |0 -sinA  cosA    0|
+     |0   0     0      1|
+     
+     （3）绕Y轴旋转
+     
+     |cosA   0   -sinA  0|
+     |-sinA  1     0    0|
+     |sinA   0   cosA   0|
+     |0      0     0    1|
+     
+     */
+    UIImageView *imageView5 = [[UIImageView alloc] initWithImage:image.copy];;
+    CATransform3D trans = CATransform3DIdentity;
+    trans.m22 = 0.5;
+    trans.m23 = 0.866;
+    trans.m33 = 0.5;
+    trans.m32 = -0.866;
+    imageView5.layer.transform = trans;
+    [self.view addSubview:imageView5];
+    
     WS(ws)
     [imageView1 mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(ws.view.mas_left);
@@ -74,7 +108,6 @@
     }];
     
     imageView3.frame = CGRectMake(50, 300, 50, 100);
-//    imageView3.layer.anchorPoint = CGPointMake(220, 400);
     
     [contentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(imageView2.mas_left);
@@ -86,6 +119,11 @@
     [imageView4 mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerX.equalTo(contentView.mas_centerX);
         make.centerY.equalTo(contentView.mas_centerY);
+    }];
+    
+    [imageView5 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(ws.view.mas_left);
+        make.top.equalTo(imageView3.mas_bottom).offset(20);
     }];
 }
 
