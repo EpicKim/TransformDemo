@@ -63,11 +63,12 @@
     // -1.0/D
 //    transform.m34 = - 1.0 / 12.0;
 //    transform.m43 = 1000;
+//    transform.m33 = 100;
 //    transform.m41 = 30;
 //    transform.m42 = 130;
-    transform.m22 = 0.5;
-    transform.m11 = 0.5;
-    transform = CATransform3DTranslate(transform, 0, 0, -1000);
+//    transform.m22 = 0.5;
+//    transform.m11 = 0.5;
+//    transform = CATransform3DTranslate(transform, 0, 0, -1000);
     imageView3.layer.transform = transform;
     [self.view addSubview:imageView3];
     
