@@ -21,6 +21,25 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
+    /*
+     3维空间内的平移变换及旋转变换,为什么要用4*4的矩阵来表示?
+     
+     为了解决三维矢量和4×4矩阵相乘的问题，我们机智的为三维矢量添加了第四个分量，这样之前的三维矢量(x,y,z)就变成了四维的(x,y,z,w)，这样由4个分量组成的矢量便被称为齐次坐标。需要说明的是，齐次坐标(x,y,z,w)等价于三维坐标(x/w,y/w,z/w)，因此只要w分量的值是1，那么这个齐次坐标就可以被当作三维坐标来使用，而且所表示的坐标就是以x，y，z这3个值为坐标值的点。
+     */
+    
+    /* 缩放矩阵
+     |Sx    0    0       0|
+     |0    Sy    0       0|
+     |0    0    Sz   {缩放}|
+     |0    0     0       1|
+     }
+     // 平移矩阵   D代表各个轴的移动距离
+     |1   0   0     0|
+     |0   1   0     0|
+     |0   0   1     0|
+     |Dx  Dy  Dz    0|
+     */
+    
     self.view.backgroundColor = [UIColor whiteColor];
 
     self.title = @"3D变换";
@@ -38,19 +57,17 @@
     [self.view addSubview:imageView2];
     
     // *******透视***********
-    UIImageView *imageView3 = [[UIImageView alloc] initWithImage:image];
+    UIImageView *imageView3 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"1"]];
     CATransform3D transform = CATransform3DIdentity;
     // 分母越小效果越明显
-    /* 最终变换矩阵
-     |1    0    0       0|   |1   0   0       0|
-     |0    1    0       0|   |0   1   0       0|
-     |0    0    0   {缩放}| * |0   0   1       0|
-     |0    0    0       1|   |0   0 -{偏移量}  0|
-     }
-     */
     // -1.0/D
-    transform.m34 = - 1.0 / 12.0;
-    transform = CATransform3DTranslate(transform, 0, 0, -10);
+//    transform.m34 = - 1.0 / 12.0;
+//    transform.m43 = 1000;
+//    transform.m41 = 30;
+//    transform.m42 = 130;
+    transform.m22 = 0.5;
+    transform.m11 = 0.5;
+    transform = CATransform3DTranslate(transform, 0, 0, -1000);
     imageView3.layer.transform = transform;
     [self.view addSubview:imageView3];
     
@@ -113,7 +130,11 @@
         make.top.equalTo(imageView1.mas_top);
     }];
     
-    imageView3.frame = CGRectMake(50, 300, 50, 100);
+//    imageView3.frame = CGRectMake(50, 300, 50, 100);
+    [imageView3 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(imageView1.mas_left);
+        make.top.equalTo(imageView1.mas_bottom).offset(20);
+    }];
     
     [contentView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(imageView2.mas_left);
