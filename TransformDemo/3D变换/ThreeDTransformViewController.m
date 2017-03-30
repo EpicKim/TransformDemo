@@ -96,6 +96,12 @@
     imageView5.layer.transform = trans;
     [self.view addSubview:imageView5];
     
+    // *****Y轴旋转180度*****
+    UIImageView *imageView6 = [[UIImageView alloc] initWithImage:image];
+    imageView6.layer.transform = CATransform3DMakeRotation(M_PI, 0, 1, 0);
+//    imageView6.layer.doubleSided = false;
+    [self.view addSubview:imageView6];
+    
     WS(ws)
     [imageView1 mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(ws.view.mas_left);
@@ -124,6 +130,11 @@
     [imageView5 mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(ws.view.mas_left);
         make.top.equalTo(imageView3.mas_bottom).offset(20);
+    }];
+    
+    [imageView6 mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(imageView2.mas_left);
+        make.top.equalTo(contentView.mas_bottom).offset(20);
     }];
 }
 
