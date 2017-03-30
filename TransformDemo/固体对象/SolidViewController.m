@@ -32,16 +32,13 @@
     count = 1;
     //创建主Layer
     _rootView = [[UIView alloc] init];
-    CATransform3D perspective = CATransform3DIdentity;
-    perspective.m34 = -1.0 / 500.0;
-    perspective = CATransform3DRotate(perspective, -M_PI_4, 1, 0, 0);
-    perspective = CATransform3DRotate(perspective, -M_PI_4, 0, 1, 0);
-    _rootView.layer.sublayerTransform = perspective;
-    [self.view addSubview:_rootView];
-
+    // X轴旋转45°
     CATransform3D trans = CATransform3DMakeRotation(-M_PI_4, 1, 0, 0);
+    // Y轴旋转45°
     _rootView.layer.sublayerTransform = CATransform3DRotate(trans, -M_PI_4, 0, 1, 0);
-    //前
+    [self.view addSubview:_rootView];
+    
+    // 1
    CATransform3D transform = CATransform3DMakeTranslation(0, 0, 100);
     [self addFace:transform].backgroundColor = [UIColor redColor];
     // 2
@@ -66,6 +63,15 @@
     [self addFace:transform].backgroundColor = [UIColor purpleColor];
     
     [self.view addSubview:_rootView];
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+    button.frame = CGRectMake(80, 80, 50, 50);
+    button.backgroundColor = [UIColor greenColor];
+    [button setTitle:@"3" forState:UIControlStateNormal];
+    button.titleLabel.font = [UIFont systemFontOfSize:30];
+    [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(didClick:) forControlEvents:UIControlEventTouchUpInside];
+//    [self.view addSubview:button];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -82,20 +88,36 @@
     view.frame = CGRectMake(CGRectGetMidX(self.view.bounds), CGRectGetMidY(self.view.bounds), 200, 200);
     
     view.layer.transform = transform;
-    
-    //设置transform属性并把Layer加入到主Layer中
-    view.layer.transform = transform;
-    UILabel *label = [[UILabel alloc] init];
-    label.font = [UIFont systemFontOfSize:30];
-    label.text = [NSString stringWithFormat:@"%d", count];
-    [view addSubview:label];
-    
-    [self applyLightingToFace:view.layer];
-    label.frame = CGRectMake(80, 80, 20, 20);
 
+    view.tag = count;
+    if (count != 3) {
+        view.userInteractionEnabled = false;
+        UILabel *label = [[UILabel alloc] init];
+        label.frame = CGRectMake(80, 80, 20, 20);
+        label.font = [UIFont systemFontOfSize:30];
+        label.text = [NSString stringWithFormat:@"%d", count];
+        [view addSubview:label];
+    }
+    else {
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+        button.frame = CGRectMake(80, 80, 50, 50);
+        button.backgroundColor = [UIColor greenColor];
+        [button setTitle:@"3" forState:UIControlStateNormal];
+        button.titleLabel.font = [UIFont systemFontOfSize:30];
+        [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [button addTarget:self action:@selector(didClick:) forControlEvents:UIControlEventTouchUpInside];
+        [view addSubview:button];
+    }
+    
     count ++;
     [_rootView addSubview:view];
+    
     return view;
+}
+
+- (void)didClick:(id)sender {
+    UIView *view = (UIView *)sender;
+    NSLog(@"%ld", (long)view.tag);
 }
 
 - (void)applyLightingToFace:(CALayer *)face
